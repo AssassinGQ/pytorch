@@ -368,6 +368,20 @@ class ObjectPair(Pair):
         return self._make_error_meta(AssertionError, f"{self.actual} != {self.expected}")
 
 
+class NonePair(Pair):
+    """Pair for ``None`` inputs."""
+    def __init__(self, actual: Any, expected: Any, **other_parameters: Any) -> None:
+        if not (actual is None and expected is None):
+            raise UnsupportedInputs()
+
+        super().__init__(actual, expected, **other_parameters)
+
+    def compare(self) -> Optional[ErrorMeta]:
+        # At instantiation we already checked that both actual and expected are None, so there is nothing left to do
+        # here
+        return None
+
+
 class BooleanPair(Pair):
     """Pair for :class:`bool` inputs.
 
@@ -1244,7 +1258,12 @@ def assert_close(
     assert_equal(
         actual,
         expected,
-        pair_types=(BooleanPair, NumberPair, TensorLikePair),
+        pair_types=(
+            NonePair,
+            BooleanPair,
+            NumberPair,
+            TensorLikePair,
+        ),
         allow_subclasses=allow_subclasses,
         rtol=rtol,
         atol=atol,
